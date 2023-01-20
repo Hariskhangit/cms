@@ -135,7 +135,11 @@ class register_vacation(APIView):
     def post(self, request):
         serializer = VacationSerializer(data=request.data)
         employee = Employee.objects.get(pk=request.data['employee'])
-        if employee.leaves <= 4:
+        if employee.leaves < 4 :
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return JsonResponse(serializer.errors, safe=False, status=status.HTTP_400_BAD_REQUEST)
             employee.leaves += 1
             employee.save()
             return JsonResponse(data={"message": "Leave has been sent"}, status=status.HTTP_200_OK)
